@@ -9,28 +9,28 @@ model
 entity TodoList{
   filter: String = "All" (default)
   
-  
+  todosLeft: Int = (todos \ finishedTodos).count() + sum(children.todosLeft)
   allFinished: Boolean = todosLeft == 0
-  
-  todosLeft: Int = (todos \ finishedTodos).count()
   
   input: String = "" (default)
   
-  view: View = div {
-    allFinished
-    ul {
-      visibleTodos.view
-    }
-    filter
-    todosLeft
-    children.view
-  }
+  view: String = "${allFinished} ${visibleTodos.view} ${filter} ${todosLeft} ${children.view}"
+//  view: View = div {
+//    allFinished
+//    ul {
+//      visibleTodos.view
+//    }
+//    filter
+//    todosLeft
+//    children.view
+//  }
 }
 
 entity Todo {
   task: String
   finished: Boolean
-  view : View = div { task finished }
+  view: String = "${task} ${finished}"
+//  view : View = div { task finished }
 }
 
 relation TodoList.todos * <-> 1 Todo.list

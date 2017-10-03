@@ -6,9 +6,18 @@ import TodoListView from "./view/TodoListView";
 
 import './stylesheets/todo.scss';
 
-const list = new TodoList();
-list.setFilter('All');
-list.setInput('');
+const rootList = new TodoList();
+rootList.setFilter('All');
+rootList.setInput('');
+
+let parent = rootList;
+for(let i = 0 ; i < 1000 ; i++){
+  const child = new TodoList();
+  child.setFilter('All');
+  child.setInput('');
+  child.setParent(parent);
+  // parent = child;
+}
 
 import { Observable } from 'rxjs';
 import {AnimationFrameScheduler, TimedScheduler} from "../runtime/Scheduler";
@@ -19,11 +28,11 @@ const root =
   React.createElement(SchedulerProdiver,
     {scheduler},
     React.createElement(TodoListView,
-      {list}
+      {list: rootList}
     )
   );
 
-window.list = list;
+window.list = root;
 window.Todo = Todo;
 window.TodoList = TodoList;
 

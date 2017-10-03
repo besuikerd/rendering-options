@@ -1,17 +1,23 @@
-import {callDirtySubscriber, DerivedValue, DirtySubscriber, Identity, One, ZeroOrMore} from "../../runtime/runtime";
+import {
+  callDirtySubscriber, DerivedValue, DirtySubscriber, Identity, One, ZeroOrMore,
+  ZeroOrOne
+} from "../../runtime/runtime";
 import {Todo} from "./Todo";
 import * as _ from 'lodash';
 import v4 = require("uuid/v4");
 import * as React from 'react';
 import TodoView from "../view/TodoView";
+import TodoListView from "../view/TodoListView";
 import {ChangeEvent, KeyboardEvent, MouseEvent} from "react";
-import {conj} from "../../runtime/expression";
+import {conj, sum} from "../../runtime/expression";
 
 export class TodoList{
   private id: Identity;
 
   constructor(){
     this.todos = [];
+    this.children = [];
+    this.parent = null;
     this.id = v4();
   }
 
@@ -71,6 +77,84 @@ export class TodoList{
     this.flagDirtyVisibleTodos();
     this.flagDirtyAllFinished();
     this.flagDirtyTodosLeft();
+  }
+
+  private parent: ZeroOrOne<TodoList>;
+
+  getParent(): ZeroOrOne<TodoList> {
+    if(this.parent == undefined) {
+
+    }
+    return this.parent;
+  }
+
+  setParent(parent: ZeroOrOne<TodoList>){
+    if(this.parent !== null){
+      this.parent.unidirectionalSetChildren(this.parent.getChildren().filter(x => x !== this));
+    }
+    if(parent !== null){
+      parent.unidirectionalSetChildren([...parent.getChildren(), this]);
+    }
+    this.unidirectionalSetParent(parent);
+  }
+
+  unidirectionalSetParent(parent: ZeroOrOne<TodoList>){
+    this.parent = parent;
+    this.flagDirtyParent();
+  }
+
+  flagDirtyParent(){
+  }
+
+  private children: ZeroOrMore<TodoList>;
+
+  getChildren(): ZeroOrMore<TodoList> {
+    if(this.children == undefined) {
+
+    }
+    return this.children;
+  }
+
+  setChildren(children: ZeroOrMore<TodoList>){
+    const toAdd = _.difference(children, this.getChildren());
+    toAdd.forEach(child => {
+      const parent = child.getParent();
+      if(parent !== null){
+        parent.unidirectionalSetChildren(parent.getChildren().filter(x => x !== child))
+      }
+      child.unidirectionalSetParent(this);
+    });
+    const toRemove = _.difference(this.getChildren(), children);
+    toRemove.forEach(child => child.unidirectionalSetParent( null as any));
+    this.unidirectionalSetChildren(children);
+  }
+
+  unidirectionalSetChildren(children: ZeroOrMore<TodoList>){
+    this.children = children;
+    this.flagDirtyChildren();
+  }
+
+  flagDirtyChildren(){
+    this.flagDirtyAllTodos();
+    this.flagDirtyTodosLeft();
+    this.flagDirtyView();
+  }
+
+  private allTodos: DerivedValue<ZeroOrMore<Todo>>;
+  
+  getAllTodos(): ZeroOrMore<Todo> {
+    let result: ZeroOrMore<Todo>;
+    if(this.allTodos === undefined) {
+      const children = this.getChildren().map(child => child.getAllTodos());
+      result = Array.prototype.concat.apply(this.getTodos(), children);
+      this.allTodos = result;
+    } else {
+      result = this.allTodos
+    }
+    return result;
+  }
+
+  flagDirtyAllTodos(){
   }
 
   private finishedTodos: DerivedValue<ZeroOrMore<Todo>>;
@@ -137,11 +221,31 @@ export class TodoList{
     this.flagDirtyView();
   }
 
+  private todosLeft: DerivedValue<number>;
+
+  getTodosLeft(): One<number> {
+    if(this.todosLeft == undefined) {
+      const children = this.getChildren().map(child => child.getTodosLeft());
+      this.todosLeft = this.getTodos().length - this.getFinishedTodos().length + sum(children);
+    }
+    return this.todosLeft;
+  }
+
+  flagDirtyTodosLeft(){
+    this.todosLeft = undefined;
+    const parent = this.getParent();
+    if(parent !== null){
+      parent.flagDirtyTodosLeft();
+    }
+    this.flagDirtyAllFinished();
+
+  }
+
   private allFinished: DerivedValue<boolean>;
 
   getAllFinished(): boolean {
     if(this.allFinished == undefined) {
-      this.allFinished = this.getFinishedTodos().length == this.getTodos().length;
+      this.allFinished = this.getTodosLeft() == 0;
     }
     return this.allFinished;
   }
@@ -151,21 +255,7 @@ export class TodoList{
     this.flagDirtyView();
   }
 
-  private todosLeft: DerivedValue<number>;
-
-  getTodosLeft(): number {
-    if(this.todosLeft == undefined) {
-      this.todosLeft = this.getTodos().length - this.getFinishedTodos().length;
-    }
-    return this.todosLeft;
-  }
-
-  flagDirtyTodosLeft(){
-    this.todosLeft = undefined;
-  }
-
   view: DerivedValue<One<JSX.Element>>;
-
 
   onInput = (e:ChangeEvent<HTMLInputElement>) => {
     this.setInput(e.target.value);
@@ -183,6 +273,13 @@ export class TodoList{
     this.setFilter('Not finished');
   };
 
+  addChild = () => {
+    const child = new TodoList();
+    child.setFilter('All');
+    child.setInput('');
+    child.setParent(this);
+  };
+
   addTodo = (e: KeyboardEvent<HTMLInputElement>) => {
     if(e.key == 'Enter' && this.getInput() !== ''){
       const todo = new Todo();
@@ -194,8 +291,8 @@ export class TodoList{
   };
 
   toggleAll = (e: ChangeEvent<HTMLInputElement>) => {
-    const allFinished = this.getFinishedTodos().length == this.getTodos().length;
-    this.todos.forEach(todo => todo.setFinished(!allFinished));
+    const allFinished = this.getAllFinished();
+    this.getAllTodos().forEach(todo => todo.setFinished(!allFinished));
   };
 
   clearFinished = (e: MouseEvent<any>) => {
@@ -204,14 +301,16 @@ export class TodoList{
 
   getView(): One<JSX.Element> {
     if(this.view === undefined){
-      console.log('virtual render list', this.getIdentity());
+      // console.log('virtual render list', this.getIdentity());
       const todos = this.getVisibleTodos().map(todo => <TodoView key={todo.getIdentity()} todo={todo}/>);
+      const children = this.getChildren().map(child => <TodoListView key={child.getIdentity()} list={child}/>);
       const clearTodos = this.getFinishedTodos().length == 0 ? null : <a className="clear-completed" onClick={this.clearFinished}>Clear finished todos</a>;
       const todosLeft = this.getTodosLeft();
       const itemsPlural = todosLeft == 1 ? 'item' : 'items';
 
       this.view = <section className="todoapp" key={this.getIdentity()}>
 
+        <button className="add-child" onClick={this.addChild}>Add child</button>
         <header className="header">
           <h1>Todos</h1>
           <input id="new-todo" type="text" value={this.getInput()} onChange={this.onInput} onKeyDown={this.addTodo}/>
@@ -223,6 +322,10 @@ export class TodoList{
             { todos }
           </ul>
         </section>
+
+        <div style={{margin: '0px'}}>
+          { children }
+        </div>
 
         <footer className="footer">
           <span className="todo-count">
@@ -237,7 +340,6 @@ export class TodoList{
 
           {clearTodos}
         </footer>
-
       </section>;
     }
     return this.view;
@@ -245,6 +347,11 @@ export class TodoList{
 
   flagDirtyView(){
     this.view = undefined;
+    const parent = this.getParent();
+    if(parent !== null){
+      parent.flagDirtyView();
+    }
+
     const viewDirtySubscribers = this.viewDirtySubscribers;
     if(viewDirtySubscribers !== undefined){
       viewDirtySubscribers.forEach(callDirtySubscriber);
@@ -254,7 +361,7 @@ export class TodoList{
   private viewDirtySubscribers: Set<DirtySubscriber> | undefined;
 
   subscribeDirtyView(subscriber: DirtySubscriber){
-    console.log('list view added', this.getIdentity())
+    // console.log('list view added', this.getIdentity())
     if(this.viewDirtySubscribers === undefined){
       this.viewDirtySubscribers = new Set();
     }
@@ -262,7 +369,7 @@ export class TodoList{
   }
 
   unsubscribeDirtyView(subscriber: DirtySubscriber){
-    console.log('list view removed', this.getIdentity())
+    // console.log('list view removed', this.getIdentity())
     const viewDirtySubscribers = this.viewDirtySubscribers;
     if(viewDirtySubscribers !== undefined){
       viewDirtySubscribers.delete(subscriber);

@@ -11,6 +11,10 @@ export class Todo {
 
   private task: One<string>;
 
+  constructor(){
+    this.list = null as any;
+  }
+
   setTask(task: One<string>){
     this.task = task;
     this.id = v4();
@@ -63,7 +67,7 @@ export class Todo {
 
   setList(list: One<TodoList>){
     const previous = this.getList();
-    if(previous !== undefined){
+    if(previous !== null){
       previous.unidirectionalSetTodos(previous.getTodos().filter(x => x != this))
     }
     this.unidirectionalSetList(list);
@@ -127,7 +131,7 @@ export class Todo {
 
   getView(): One<JSX.Element> {
     if(this.view === undefined){
-      console.log('virtual render todo', this.getTask());
+      // console.log('virtual render todo', this.getTask());
       this.view = <li className={this.getFinished() ? 'completed' : ''} key={this.getIdentity()}>
         <div className="view">
           <input type="checkbox" className="toggle" checked={this.getFinished()} onChange={this.onToggle}/>
@@ -155,7 +159,7 @@ export class Todo {
   private viewDirtySubscribers: Set<DirtySubscriber> | undefined;
 
   subscribeDirtyView(subscriber: DirtySubscriber){
-    console.log('todo view added', this.getTask());
+    // console.log('todo view added', this.getTask());
     if(this.viewDirtySubscribers === undefined){
       this.viewDirtySubscribers = new Set();
     }
@@ -163,7 +167,7 @@ export class Todo {
   }
 
   unsubscribeDirtyView(subscriber: DirtySubscriber){
-    console.log('todo view removed', this.getTask());
+    // console.log('todo view removed', this.getTask());
     const viewDirtySubscribers = this.viewDirtySubscribers;
     if(viewDirtySubscribers !== undefined){
       viewDirtySubscribers.delete(subscriber);

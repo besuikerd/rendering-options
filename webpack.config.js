@@ -7,7 +7,7 @@ var config = {
     extensions: ['.ts', '.tsx', '.js', '.jsx']
   }
 , output: {
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'target')
   , publicPath: 'target/'
   , filename: '[name].js'
   }
