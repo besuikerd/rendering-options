@@ -68,7 +68,7 @@ export class AnimationFrameScheduler implements Scheduler{
 
   private subscription: number | null;
 
-  constructor(interval: number){
+  constructor(){
     this.scheduledUpdates = new Set();
     this.subscription = null;
   }
