@@ -11,7 +11,7 @@ rootList.setFilter('All');
 rootList.setInput('');
 
 let parent = rootList;
-for(let i = 0 ; i < 1000 ; i++){
+for(let i = 0 ; i < 100 ; i++){
   const child = new TodoList();
   child.setFilter('All');
   child.setInput('');
@@ -23,7 +23,8 @@ import { Observable } from 'rxjs';
 import {AnimationFrameScheduler, TimedScheduler} from "../runtime/Scheduler";
 import SchedulerProdiver from "../runtime/SchedulerProdiver";
 
-const scheduler = new AnimationFrameScheduler(100);
+const scheduler = new AnimationFrameScheduler();
+// const scheduler = new TimedScheduler(1000);
 const root =
   React.createElement(SchedulerProdiver,
     {scheduler},

@@ -29,8 +29,26 @@ export class Todo {
     return this.task;
   }
 
+  private taskDirtySubscribers: Set<DirtySubscriber>;
+
   flagDirtyTask(){
+    if(this.taskDirtySubscribers !== undefined){
+      this.taskDirtySubscribers.forEach(callDirtySubscriber);
+    }
     this.flagDirtyView();
+  }
+
+  subscribeDirtyTask(dirtySubscriber: DirtySubscriber){
+    if(this.taskDirtySubscribers === undefined){
+      this.taskDirtySubscribers = new Set();
+    }
+    this.taskDirtySubscribers.add(dirtySubscriber);
+  }
+
+  unsubscribeDirtyTask(dirtySubscriber: DirtySubscriber){
+    if(this.taskDirtySubscribers !== undefined){
+      this.taskDirtySubscribers.delete(dirtySubscriber);
+    }
   }
 
   private finished: One<boolean>;
@@ -48,12 +66,27 @@ export class Todo {
     return this.finished;
   }
 
+  private finishedDirtySubscribers: Set<DirtySubscriber>;
+
   flagDirtyFinished(){
-    if(this.getList() !== undefined){
-      this.getList().flagDirtyFinishedTodos();
-      this.getList().flagDirtyAllFinished();
+    if(this.finishedDirtySubscribers !== undefined){
+      this.finishedDirtySubscribers.forEach(callDirtySubscriber);
     }
+    this.getList().flagDirtyFinishedTodos();
     this.flagDirtyView();
+  }
+
+  subscribeDirtyFinished(dirtySubscriber: DirtySubscriber){
+    if(this.finishedDirtySubscribers === undefined){
+      this.finishedDirtySubscribers = new Set();
+    }
+    this.finishedDirtySubscribers.add(dirtySubscriber);
+  }
+
+  unsubscribeDirtyFinished(dirtySubscriber: DirtySubscriber){
+    if(this.finishedDirtySubscribers !== undefined){
+      this.finishedDirtySubscribers.delete(dirtySubscriber);
+    }
   }
 
   private list: One<TodoList>;
@@ -81,7 +114,25 @@ export class Todo {
     this.flagDirtyList();
   }
 
+  private listDirtySubscribers: Set<DirtySubscriber>;
+
   flagDirtyList(){
+    if(this.listDirtySubscribers !== undefined){
+      this.listDirtySubscribers.forEach(callDirtySubscriber);
+    }
+  }
+
+  subscribeDirtyList(dirtySubscriber: DirtySubscriber){
+    if(this.listDirtySubscribers === undefined){
+      this.listDirtySubscribers = new Set();
+    }
+    this.listDirtySubscribers.add(dirtySubscriber);
+  }
+
+  unsubscribeDirtyList(dirtySubscriber: DirtySubscriber){
+    if(this.listDirtySubscribers !== undefined){
+      this.listDirtySubscribers.delete(dirtySubscriber);
+    }
   }
 
   private inverseFinishedTodos: ZeroOrOne<TodoList>;
@@ -98,7 +149,25 @@ export class Todo {
     this.flagDirtyInverseFinishedTodos();
   }
 
+  private inverseFinishedTodosDirtySubscribers: Set<DirtySubscriber>;
+
   flagDirtyInverseFinishedTodos(){
+    if(this.inverseFinishedTodosDirtySubscribers !== undefined){
+      this.inverseFinishedTodosDirtySubscribers.forEach(callDirtySubscriber);
+    }
+  }
+
+  subscribeDirtyInverseFinishedTodos(dirtySubscriber: DirtySubscriber){
+    if(this.inverseFinishedTodosDirtySubscribers === undefined){
+      this.inverseFinishedTodosDirtySubscribers = new Set();
+    }
+    this.inverseFinishedTodosDirtySubscribers.add(dirtySubscriber);
+  }
+
+  unsubscribeDirtyInverseFinishedTodos(dirtySubscriber: DirtySubscriber){
+    if(this.inverseFinishedTodosDirtySubscribers !== undefined){
+      this.inverseFinishedTodosDirtySubscribers.delete(dirtySubscriber);
+    }
   }
 
   private inverseVisibleTodos: DerivedValue<ZeroOrOne<TodoList>>;
@@ -115,7 +184,26 @@ export class Todo {
     this.flagDirtyInverseVisibleTodos();
   }
 
+  private inverseVisibleTodosDirtySubscribers: Set<DirtySubscriber>;
+
   flagDirtyInverseVisibleTodos(){
+    this.inverseVisibleTodos = undefined;
+    if(this.inverseVisibleTodosDirtySubscribers !== undefined){
+      this.inverseVisibleTodosDirtySubscribers.forEach(callDirtySubscriber);
+    }
+  }
+
+  subscribeDirtyInverseVisibleTodos(dirtySubscriber: DirtySubscriber){
+    if(this.inverseVisibleTodosDirtySubscribers === undefined){
+      this.inverseVisibleTodosDirtySubscribers = new Set();
+    }
+    this.inverseVisibleTodosDirtySubscribers.add(dirtySubscriber);
+  }
+
+  unsubscribeDirtyInverseVisibleTodos(dirtySubscriber: DirtySubscriber){
+    if(this.inverseVisibleTodosDirtySubscribers !== undefined){
+      this.inverseVisibleTodosDirtySubscribers.delete(dirtySubscriber);
+    }
   }
 
   private view: DerivedValue<One<JSX.Element>>;
@@ -144,33 +232,29 @@ export class Todo {
     return this.view;
   }
 
+  private viewDirtySubscribers: Set<DirtySubscriber>;
+
   flagDirtyView(){
     this.view = undefined;
+    if(this.viewDirtySubscribers !== undefined){
+      this.viewDirtySubscribers.forEach(callDirtySubscriber);
+    }
     const inverseVisibleTodos = this.getInverseVisibleTodos();
     if(inverseVisibleTodos !== null){
-      inverseVisibleTodos.flagDirtyView();
-    }
-    const viewDirtySubscribers = this.viewDirtySubscribers;
-    if(viewDirtySubscribers !== undefined){
-      viewDirtySubscribers.forEach(callDirtySubscriber);
+      inverseVisibleTodos.flagDirtyView()
     }
   }
 
-  private viewDirtySubscribers: Set<DirtySubscriber> | undefined;
-
-  subscribeDirtyView(subscriber: DirtySubscriber){
-    // console.log('todo view added', this.getTask());
+  subscribeDirtyView(dirtySubscriber: DirtySubscriber){
     if(this.viewDirtySubscribers === undefined){
       this.viewDirtySubscribers = new Set();
     }
-    this.viewDirtySubscribers.add(subscriber);
+    this.viewDirtySubscribers.add(dirtySubscriber);
   }
 
-  unsubscribeDirtyView(subscriber: DirtySubscriber){
-    // console.log('todo view removed', this.getTask());
-    const viewDirtySubscribers = this.viewDirtySubscribers;
-    if(viewDirtySubscribers !== undefined){
-      viewDirtySubscribers.delete(subscriber);
+  unsubscribeDirtyView(dirtySubscriber: DirtySubscriber){
+    if(this.viewDirtySubscribers !== undefined){
+      this.viewDirtySubscribers.delete(dirtySubscriber);
     }
   }
 }

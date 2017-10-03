@@ -12,20 +12,25 @@ export default class TodoView extends PixieDustComponent<TodoProps>{
 
   constructor(props: TodoProps, context: any) {
     super(props, context);
-    props.todo.subscribeDirtyView(this.scheduleRender);
+    this.props.todo.subscribeDirtyTask(this.scheduleRender);
+    this.props.todo.subscribeDirtyFinished(this.scheduleRender);
   }
 
 
   componentWillReceiveProps(nextProps: Readonly<TodoProps>, nextContext: any): void {
     if(this.props.todo !== nextProps.todo){
-      this.props.todo.unsubscribeDirtyView(this.scheduleRender);
-      nextProps.todo.subscribeDirtyView(this.scheduleRender)
+      this.props.todo.unsubscribeDirtyTask(this.scheduleRender);
+      this.props.todo.unsubscribeDirtyFinished(this.scheduleRender);
+
+      nextProps.todo.subscribeDirtyTask(this.scheduleRender);
+      nextProps.todo.subscribeDirtyFinished(this.scheduleRender);
     }
   }
 
   componentWillUnmount(): void {
     super.componentWillUnmount();
-    this.props.todo.unsubscribeDirtyView(this.scheduleRender);
+    this.props.todo.unsubscribeDirtyTask(this.scheduleRender);
+    this.props.todo.unsubscribeDirtyFinished(this.scheduleRender);
   }
 
   shouldComponentUpdate(nextProps: Readonly<TodoProps>, nextState: Readonly<{}>, nextContext: any): boolean {

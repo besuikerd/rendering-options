@@ -14,7 +14,7 @@ entity TodoList{
   
   input: String = "" (default)
   
-  view: String = "${allFinished} ${visibleTodos.view} ${filter} ${todosLeft} ${children.view}"
+  view: String = "${allFinished} ${visibleTodos.view} ${filter} ${todosLeft} ${children.view} ${input}"
 //  view: View = div {
 //    allFinished
 //    ul {
