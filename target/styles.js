@@ -60,18 +60,18 @@
 /******/ 	__webpack_require__.p = "target/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 415);
+/******/ 	return __webpack_require__(__webpack_require__.s = 404);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 415:
+/***/ 404:
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(416);
+var content = __webpack_require__(405);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -79,7 +79,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(418)(content, options);
+var update = __webpack_require__(407)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -97,10 +97,10 @@ if(false) {
 
 /***/ }),
 
-/***/ 416:
+/***/ 405:
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(417)(undefined);
+exports = module.exports = __webpack_require__(406)(undefined);
 // imports
 
 
@@ -112,7 +112,7 @@ exports.push([module.i, "@charset \"UTF-8\";\n.todo-application {\n  font: 14px 
 
 /***/ }),
 
-/***/ 417:
+/***/ 406:
 /***/ (function(module, exports) {
 
 /*
@@ -195,7 +195,7 @@ function toComment(sourceMap) {
 
 /***/ }),
 
-/***/ 418:
+/***/ 407:
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -241,7 +241,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(419);
+var	fixUrls = __webpack_require__(408);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -555,7 +555,7 @@ function updateLink (link, options, obj) {
 
 /***/ }),
 
-/***/ 419:
+/***/ 408:
 /***/ (function(module, exports) {
 
 
