@@ -24824,7 +24824,7 @@ class TodoListView extends PixieDustComponent_1.default {
         return this.props.list !== nextProps.list;
     }
     render() {
-        // console.log('render list', this.props.list.getIdentity());
+        console.log('render list', this.props.list.getIdentity());
         return this.props.list.getView();
     }
 }
@@ -24857,7 +24857,7 @@ class TodoListView extends PixieDustComponent_1.default {
         return this.props.list !== nextProps.list;
     }
     render() {
-        // console.log('render list', this.props.list.getIdentity());
+        console.log('render list', this.props.list.getIdentity());
         return this.props.list.getView();
     }
 }
@@ -30345,7 +30345,7 @@ class TodoView extends PixieDustComponent_1.default {
         return nextProps.todo !== this.props.todo;
     }
     render() {
-        // console.log('render todo', this.props.todo.getTask());
+        console.log('render todo', this.props.todo.getTask());
         return this.props.todo.getView();
     }
 }
@@ -31063,7 +31063,7 @@ class TodoView extends PixieDustComponent_1.default {
         return nextProps.todo !== this.props.todo;
     }
     render() {
-        // console.log('render todo', this.props.todo.getTask());
+        console.log('render todo', this.props.todo.getTask());
         return this.props.todo.getView();
     }
 }
@@ -31145,7 +31145,6 @@ let TodoListView = TodoListView_1 = class TodoListView extends React.Component {
             const { list } = this.props;
             const allFinished = list.allFinished;
             list.allTodos.forEach(todo => {
-                console.log(todo);
                 todo.finished = !allFinished;
             });
         };
