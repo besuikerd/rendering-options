@@ -1,7 +1,10 @@
 var path = require('path');
 console.log(path.join(__dirname, '/dist'))
 var config = {
-  entry: './src/main'
+  entry: {
+    main: './src/main',
+    styles: './stylesheets/main.scss'
+  }
 , devtool: "source-map"
 , resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx']
