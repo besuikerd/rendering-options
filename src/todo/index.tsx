@@ -3,6 +3,8 @@ import {render} from 'react-dom';
 
 import {createTodoApplication as observe} from './pixiedust/observe/index';
 import {createTodoApplication as spine} from './pixiedust/spine/index';
+import {createTodoApplication as mobx} from './mobx/index';
+
 import {Implementations, Schedulers} from "./TodoOptions";
 import Selector from "./components/Selector";
 import {AnimationFrameScheduler, EagerScheduler, Scheduler, TimedScheduler} from "../runtime/Scheduler";
@@ -11,7 +13,8 @@ import TodoInstance from "./components/TodoInstance";
 
 let implementations: Implementations = new Map([
   ["Observe", observe],
-  ["Spine", spine]
+  ["Spine", spine],
+  ["MobX", mobx]
 ]);
 
 let schedulers : Schedulers = new Map<string, Scheduler>([
