@@ -39,6 +39,8 @@ export default class TodoListView extends React.Component<TodoListViewProps>{
     const {list} = this.props;
     const allFinished = list.allFinished;
     list.allTodos.forEach(todo => {
+
+      console.log(todo);
       todo.finished = !allFinished;
     });
   };
