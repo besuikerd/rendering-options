@@ -49,7 +49,7 @@ export default class TodoListView extends PixieDustComponent<TodoListViewProps>{
   }
 
   render(){
-    // console.log('render list', this.props.list.getIdentity());
+    console.log('render list', this.props.list.getIdentity());
     return this.props.list.getView();
   }
 }

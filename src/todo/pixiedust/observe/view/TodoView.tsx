@@ -38,7 +38,7 @@ export default class TodoView extends PixieDustComponent<TodoProps>{
   }
 
   render(): JSX.Element | any {
-    // console.log('render todo', this.props.todo.getTask());
+    console.log('render todo', this.props.todo.getTask());
     return this.props.todo.getView();
   }
 }
