@@ -38,8 +38,11 @@ export default class TodoList{
   }
 
   @computed get allTodos(): Todo[] {
-    const children = this.children.map(child => child.allTodos);
-    return Array.prototype.concat(this.todos, children);
+    let result: Todo[] = this.todos;
+    this.children.forEach(child => {
+      result = result.concat(child.allTodos);
+    });
+    return result;
   }
 
   constructor(){
