@@ -22,6 +22,7 @@ export default class TodoListView extends PixieDustComponent<TodoListViewProps>{
   }
 
   componentWillUnmount(): void {
+    super.componentWillUnmount();
     this.props.list.unsubscribeDirtyView(this.scheduleRender);
   }
 

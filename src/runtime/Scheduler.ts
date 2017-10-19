@@ -41,25 +41,29 @@ export class TimedScheduler implements Scheduler {
   private scheduledUpdates: Set<DirtySubscriber>;
   private interval: number;
 
-  private subscription: Subscription;
+  private subscription: number | null;
 
   constructor(interval: number){
     this.interval = interval;
+    this.subscription = null;
     this.scheduledUpdates = new Set();
   }
 
   schedule(dirtySubscriber: DirtySubscriber): void {
     this.scheduledUpdates.add(dirtySubscriber);
-    if(this.subscription !== null){
-      this.subscription = Observable.interval(this.interval).subscribe(this.flush);
+    if(this.subscription == null){
+      this.subscription = window.setTimeout(this.flush, this.interval);
     }
   }
 
   flush = () => {
-
+    if(this.subscription !== null){
+      window.clearInterval(this.subscription);
+      this.subscription = null;
+    }
     this.scheduledUpdates.forEach(callDirtySubscriber);
     this.scheduledUpdates.clear();
-    this.subscription.unsubscribe();
+
   }
 }
 
