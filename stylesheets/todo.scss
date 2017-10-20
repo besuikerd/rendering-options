@@ -205,7 +205,7 @@
   }
 
   .todo-list li .destroy {
-    display: none;
+    display: block;
     position: absolute;
     top: 0;
     right: 10px;
@@ -368,5 +368,10 @@
     .filters {
       bottom: 10px;
     }
+  }
+
+  .todo-children{
+    list-style-type: none;
+    padding-left:0;
   }
 }

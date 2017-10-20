@@ -455,7 +455,7 @@ export default class TodoList{
   };
 
   setFilterNotFinished = () => {
-    this.setFilter('Not finished');
+    this.setFilter('Not Finished');
   };
 
   addChild = () => {
@@ -475,12 +475,12 @@ export default class TodoList{
     }
   };
 
-  toggleAll = (e: ChangeEvent<HTMLInputElement>) => {
+  toggleAll = (e: MouseEvent<HTMLElement>) => {
     const allFinished = this.getAllFinished();
     this.getAllTodos().forEach(todo => todo.setFinished(!allFinished));
   };
 
-  clearFinished = (e: MouseEvent<any>) => {
+  clearFinished = (e: MouseEvent<HTMLElement>) => {
     this.getFinishedTodos().forEach(todo => todo.setList(null as any));
   };
 
@@ -488,7 +488,7 @@ export default class TodoList{
     if(this.view === undefined){
       // console.log('virtual render list', this.getIdentity());
       const todos = this.getVisibleTodos().map(todo => <TodoView key={todo.getIdentity()} todo={todo}/>);
-      const children = this.getChildren().map(child => <TodoListView key={child.getIdentity()} list={child}/>);
+      const children = this.getChildren().map(child => <li key={child.getIdentity()}><TodoListView list={child}/></li>);
       const clearTodos = this.getFinishedTodos().length == 0 ? null : <a className="clear-completed" onClick={this.clearFinished}>Clear finished todos</a>;
       const todosLeft = this.getTodosLeft();
       const itemsPlural = todosLeft == 1 ? 'item' : 'items';
@@ -498,19 +498,18 @@ export default class TodoList{
         <button className="add-child" onClick={this.addChild}>Add child</button>
         <header className="header">
           <h1>Todos</h1>
-          <input id="new-todo" type="text" value={this.getInput()} onChange={this.onInput} onKeyDown={this.addTodo}/>
+          <input id="new-todo" type="text" value={this.getInput()} onChange={this.onInput} onKeyPress={this.addTodo}/>
         </header>
 
         <section className="main">
-          <input className="toggle-all" type="checkbox" checked={this.getAllFinished()} onChange={this.toggleAll}/>
+          <input className="toggle-all" type="checkbox" checked={this.getAllFinished()} onClick={this.toggleAll}/>
           <ul className="todo-list">
             { todos }
           </ul>
+          <ul className="todo-children">
+            { children }
+          </ul>
         </section>
-
-        <div style={{margin: '0px'}}>
-          { children }
-        </div>
 
         <footer className="footer">
           <span className="todo-count">

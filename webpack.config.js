@@ -3,6 +3,7 @@ console.log(path.join(__dirname, '/dist'))
 var config = {
   entry: {
     main: './src/main',
+    test: './src/todo/test/test',
     styles: './stylesheets/main.scss'
   }
 , devtool: "source-map"
