@@ -241,7 +241,7 @@ export default class Todo {
     }
     const inverseVisibleTodos = this.getInverseVisibleTodos();
     if(inverseVisibleTodos !== null){
-      inverseVisibleTodos.flagDirtyView()
+      inverseVisibleTodos.flagDirtyView();
     }
   }
 

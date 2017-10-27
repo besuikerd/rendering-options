@@ -10,7 +10,7 @@ interface TodoListHeaderProps{
 }
 
 @observer
-class TodoListHeader extends React.Component<TodoListHeaderProps>{
+export class TodoListHeader extends React.Component<TodoListHeaderProps>{
   onInput = (e: ChangeEvent<HTMLInputElement>) => {
     this.props.list.input = e.target.value;
   };
@@ -34,13 +34,22 @@ class TodoListHeader extends React.Component<TodoListHeaderProps>{
     });
   };
 
+  addChild = (e: MouseEvent<HTMLElement>) => {
+    const { list } = this.props;
+    const child = new TodoList();
+    child.input = "";
+    child.filter = "";
+    list.children.push(child);
+  };
+
   render(): JSX.Element{
     const { list } = this.props;
     console.log('render header', list.id);
     return <header className="header">
+      <button className="add-child" onClick={this.addChild}>Add child</button>
       <h1>Todos</h1>
       <input className="toggle-all" type="checkbox" checked={list.allFinished} onChange={this.toggleAll}/>
-      <input id="new-todo" type="text" value={list.input} onChange={this.onInput} onKeyDown={this.addTodo}/>
+      <input id="new-todo" type="text" value={list.input} onChange={this.onInput} onKeyPress={this.addTodo}/>
     </header>
   }
 }
@@ -50,7 +59,7 @@ interface TodoListFooterProps{
 }
 
 @observer
-class TodoFooterView extends React.Component<TodoListFooterProps>{
+export class TodoListFooter extends React.Component<TodoListFooterProps>{
   setFilterAll = (e: MouseEvent<HTMLElement>) => {
     this.props.list.filter = 'All';
   };
@@ -116,21 +125,19 @@ export default class TodoListView extends React.Component<TodoListViewProps>{
     const {list} = this.props;
 
     const children = list.children.map(child => <TodoListView key={child.id} list={child}/>);
-    const todos = list.visibleTodos.map(todo => <TodoView key={todo.id} todo={todo} removeTodo={this.removeTodo(todo)}/>);
+    const todos = list.todos.map(todo => <TodoView key={todo.id} todo={todo} removeTodo={this.removeTodo(todo)}/>);
 
     return <section className="todoapp" key={list.id}>
-      <TodoListHeader list={list}/>
-      <section className="main">
-        <ul className="todo-list">
-          { todos }
-        </ul>
-      </section>
-
-      <div style={{margin: '0px'}}>
-        { children }
-      </div>
-
-      <TodoFooterView list={list}/>
+    <TodoListHeader list={list}/>
+    <section className="main">
+      <ul className="todo-list">
+        { todos }
+      </ul>
+    <ul className="todo-children">
+      { children }
+    </ul>
+  </section>
+  <TodoListFooter list={list}/>
     </section>;
   }
 }

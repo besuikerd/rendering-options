@@ -1,91 +1,6 @@
-import * as React from 'react';
-import {render} from 'react-dom';
+import TestOptions from './TestOptions';
+import TestStrategy from "./TestStrategy";
 import {Simulate} from "react-dom/test-utils";
-import TodoList from "../pixiedust/observe/model/TodoList"
-import TodoListView from '../pixiedust/observe/view/TodoListView';
-import {AnimationFrameScheduler} from "../../runtime/Scheduler";
-import SchedulerProdiver from "../../runtime/SchedulerProdiver";
-
-
-const list = new TodoList();
-list.setInput("");
-list.setFilter("All");
-const scheduler = new AnimationFrameScheduler();
-
-const app = <SchedulerProdiver scheduler={scheduler}>
-    <TodoListView list={list}/>
-  </SchedulerProdiver>;
-
-const container = document.body.appendChild(document.createElement('div'));
-container.setAttribute('class', 'todo-application');
-render(app, container);
-
-
-interface TestSelectors{
-  list: string
-  addChild: string
-  input: string
-  toggle: string
-  toggleAll: string
-  taskContainer: string
-  deleteButton: string
-  footer: string
-  filters: string
-  clearCompleted: string
-}
-
-const selector: TestSelectors = {
-  list: '.todoapp',
-  addChild: '.add-child',
-  input: '#new-todo',
-  toggle: '.toggle',
-  toggleAll: '.toggle-all',
-  taskContainer: '.todo-list',
-  deleteButton: '.destroy',
-  footer: ':scope > .footer',
-  filters: '.filters li a',
-  clearCompleted: '.clear-completed'
-};
-
-const options: TestOptions = {
-  levels: 3,
-  childrenPerLevel: 3,
-  tasksPerList: 10,
-  taskLength: 3,
-  selectionOffset: 3,
-  deletionOffset: 5,
-  selector
-};
-
-
-const root = container.querySelector(selector.list);
-if(root !== null){
-  runTest(root, options).then(() => {
-    console.log(document.querySelectorAll(selector.list).length)
-  });
-}
-
-
-interface TestOptions{
-  levels: number
-  childrenPerLevel: number
-  tasksPerList: number
-  taskLength: number
-
-  /**
-   * offset per task that gets checked
-   */
-  selectionOffset: number
-
-  /**
-   * offset per task that gets deleted
-   */
-  deletionOffset: number
-
-  selector: TestSelectors
-}
-
-
 
 function animationFrame(): Promise<number>{
   // return sleep(300).then(e => 0);
@@ -96,13 +11,53 @@ function sleep(time: number): Promise<void> {
   return new Promise(r => setTimeout(r, time))
 }
 
-async function runTest(root: Element, options: TestOptions){
+export async function runTest(root: Element, options: TestOptions){
   const { selector } = options;
 
-  async function runList(element: Element, level: number){
-
-    await addChildren(element);
+  async function topDown(element: Element, depth: number){
+    await addTasks(element);
     await animationFrame();
+
+    await toggleAll(element);
+    await animationFrame();
+
+    const taskContainer = element.querySelector(selector.taskContainer) as HTMLElement;
+
+    await toggleTasks(taskContainer);
+    await animationFrame();
+
+    await deleteTasks(taskContainer);
+    await animationFrame();
+
+
+    const footerContainer = element.querySelector(selector.footer) as HTMLElement;
+
+    await toggleFilters(footerContainer);
+    await animationFrame();
+
+    await clearFinished(footerContainer);
+
+    if(depth < options.depth){
+      await addChildren(element);
+      await animationFrame();
+
+      const children = Array.from(element.querySelectorAll(selector.list));
+      for(let child of children){
+        await topDown(child, depth + 1);
+      }
+    }
+  }
+
+  async function bottomUp(element: Element, depth: number){
+    if(depth < options.depth){
+      await addChildren(element);
+      await animationFrame();
+
+      const children = Array.from(element.querySelectorAll(selector.list));
+      for(let child of children){
+        await bottomUp(child, depth + 1);
+      }
+    }
 
     await addTasks(element);
     await animationFrame();
@@ -124,12 +79,6 @@ async function runTest(root: Element, options: TestOptions){
     await animationFrame();
 
     await clearFinished(footerContainer);
-
-    if(level == options.levels){return;}
-    const children = Array.from(element.querySelectorAll(selector.list));
-    for(let child of children){
-      await runList(child, level + 1);
-    }
   }
 
   function addChildren(element: Element){
@@ -179,7 +128,7 @@ async function runTest(root: Element, options: TestOptions){
 
   async function toggleAll(element: Element){
     const toggleAll = element.querySelector(selector.toggleAll) as HTMLElement;
-    console.log(toggleAll);
+
     Simulate.click(toggleAll);
     await animationFrame();
     Simulate.click(toggleAll);
@@ -225,5 +174,13 @@ async function runTest(root: Element, options: TestOptions){
     return charCode;
   }
 
-  await runList(root, 1);
+  const listElement = root.querySelector(selector.list) as HTMLElement;
+
+  switch(options.strategy){
+    case TestStrategy.TOP_DOWN:
+      await topDown(listElement, 0);
+      break;
+    case TestStrategy.BOTTOM_UP:
+      await bottomUp(listElement, 0);
+  }
 }

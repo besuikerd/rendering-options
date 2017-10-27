@@ -5,7 +5,7 @@ import v4 = require("uuid/v4");
 import {sum} from "../../../runtime/expression";
 
 export default class TodoList{
-  @observable id: string;
+  id: string;
   @observable todos : Todo[];
   @observable children: TodoList[];
   @observable filter: string;

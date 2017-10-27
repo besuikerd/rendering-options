@@ -3,7 +3,7 @@ import v4 = require("uuid/v4");
 
 
 export default class Todo{
-  @observable id: string;
+  id: string;
   @observable task: string;
   @observable finished: boolean;
 

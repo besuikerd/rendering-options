@@ -8,6 +8,7 @@ import v4 = require("uuid/v4");
 import * as React from 'react';
 import TodoView from "../view/TodoView";
 import TodoListView from "../view/TodoListView";
+import {TodoListHeader, TodoListFooter} from "../view/TodoListView";
 import {ChangeEvent, KeyboardEvent, MouseEvent} from "react";
 import {sum} from "../../../../runtime/expression";
 
@@ -46,7 +47,8 @@ export default class TodoList{
       this.filterDirtySubscribers.forEach(callDirtySubscriber);
     }
     this.flagDirtyVisibleTodos();
-    this.flagDirtyView();
+
+    this.flagDirtyFooter();
   }
 
   subscribeDirtyFilter(dirtySubscriber: DirtySubscriber){
@@ -354,7 +356,7 @@ export default class TodoList{
     if(this.inputDirtySubscribers !== undefined){
       this.inputDirtySubscribers.forEach(callDirtySubscriber);
     }
-    this.flagDirtyView();
+    this.flagDirtyHeader();
   }
 
   subscribeDirtyInput(dirtySubscriber: DirtySubscriber){
@@ -387,7 +389,7 @@ export default class TodoList{
     if(this.todosLeftDirtySubscribers !== undefined){
       this.todosLeftDirtySubscribers.forEach(callDirtySubscriber);
     }
-    this.flagDirtyView();
+    this.flagDirtyFooter();
     this.flagDirtyAllFinished();
     const parent = this.getParent();
     if(parent !== null){
@@ -424,7 +426,7 @@ export default class TodoList{
     if(this.allFinishedDirtySubscribers !== undefined){
       this.allFinishedDirtySubscribers.forEach(callDirtySubscriber);
     }
-    this.flagDirtyView();
+    this.flagDirtyHeader();
   }
 
   subscribeDirtyAllFinished(dirtySubscriber: DirtySubscriber){
@@ -439,8 +441,6 @@ export default class TodoList{
       this.allFinishedDirtySubscribers.delete(dirtySubscriber);
     }
   }
-
-  view: DerivedValue<One<JSX.Element>>;
 
   onInput = (e:ChangeEvent<HTMLInputElement>) => {
     this.setInput(e.target.value);
@@ -475,7 +475,7 @@ export default class TodoList{
     }
   };
 
-  toggleAll = (e: MouseEvent<HTMLElement>) => {
+  toggleAll = (e: ChangeEvent<HTMLElement>) => {
     const allFinished = this.getAllFinished();
     this.getAllTodos().forEach(todo => todo.setFinished(!allFinished));
   };
@@ -484,25 +484,17 @@ export default class TodoList{
     this.getFinishedTodos().forEach(todo => todo.setList(null as any));
   };
 
+  view: DerivedValue<One<JSX.Element>>;
+
   getView(): One<JSX.Element> {
     if(this.view === undefined){
       // console.log('virtual render list', this.getIdentity());
       const todos = this.getVisibleTodos().map(todo => <TodoView key={todo.getIdentity()} todo={todo}/>);
       const children = this.getChildren().map(child => <li key={child.getIdentity()}><TodoListView list={child}/></li>);
-      const clearTodos = this.getFinishedTodos().length == 0 ? null : <a className="clear-completed" onClick={this.clearFinished}>Clear finished todos</a>;
-      const todosLeft = this.getTodosLeft();
-      const itemsPlural = todosLeft == 1 ? 'item' : 'items';
 
       this.view = <section className="todoapp" key={this.getIdentity()}>
-
-        <button className="add-child" onClick={this.addChild}>Add child</button>
-        <header className="header">
-          <h1>Todos</h1>
-          <input id="new-todo" type="text" value={this.getInput()} onChange={this.onInput} onKeyPress={this.addTodo}/>
-        </header>
-
+        <TodoListHeader list={this}/>
         <section className="main">
-          <input className="toggle-all" type="checkbox" checked={this.getAllFinished()} onClick={this.toggleAll}/>
           <ul className="todo-list">
             { todos }
           </ul>
@@ -510,20 +502,7 @@ export default class TodoList{
             { children }
           </ul>
         </section>
-
-        <footer className="footer">
-          <span className="todo-count">
-            {todosLeft} {itemsPlural} left
-          </span>
-
-          <ul className="filters">
-            <li><a className={this.getFilter() == 'All' ? 'selected' : ''} onClick={this.setFilterAll}>All</a></li>
-            <li><a className={this.getFilter() == 'Finished' ? 'selected' : ''} onClick={this.setFilterFinished}>Finished</a></li>
-            <li><a className={this.getFilter() == 'Not Finished' ? 'selected' : ''} onClick={this.setFilterNotFinished}>Not Finished</a></li>
-          </ul>
-
-          {clearTodos}
-        </footer>
+        <TodoListFooter list={this}/>
       </section>;
     }
     return this.view;
@@ -552,6 +531,91 @@ export default class TodoList{
   unsubscribeDirtyView(dirtySubscriber: DirtySubscriber){
     if(this.viewDirtySubscribers !== undefined){
       this.viewDirtySubscribers.delete(dirtySubscriber);
+    }
+  }
+
+  private header: DerivedValue<One<JSX.Element>>;
+
+  getHeader(): One<JSX.Element>{
+    if(this.header === undefined){
+      this.header = <header className="header">
+        <button className="add-child" onClick={this.addChild}>Add child</button>
+        <h1>Todos</h1>
+        <input className="toggle-all" type="checkbox" checked={this.getAllFinished()} onChange={this.toggleAll}/>
+        <input id="new-todo" type="text" value={this.getInput()} onChange={this.onInput} onKeyPress={this.addTodo}/>
+      </header>
+    }
+    return this.header;
+  }
+
+  flagDirtyHeader(){
+    this.header = undefined;
+    if(this.headerDirtySubscribers !== undefined){
+      this.headerDirtySubscribers.forEach(callDirtySubscriber);
+    }
+    this.flagDirtyView();
+  }
+
+  private headerDirtySubscribers: Set<DirtySubscriber>;
+
+  subscribeDirtyHeader(dirtySubscriber: DirtySubscriber){
+    if(this.headerDirtySubscribers === undefined){
+      this.headerDirtySubscribers = new Set();
+    }
+    this.headerDirtySubscribers.add(dirtySubscriber);
+  }
+
+  unsubscribeDirtyHeader(dirtySubscriber: DirtySubscriber){
+    if(this.headerDirtySubscribers !== undefined){
+      this.headerDirtySubscribers.delete(dirtySubscriber);
+    }
+  }
+
+  private footer: DerivedValue<One<JSX.Element>>;
+
+  getFooter(): One<JSX.Element>{
+    if(this.footer === undefined){
+      const clearTodos = this.getFinishedTodos().length == 0 ? null : <a className="clear-completed" onClick={this.clearFinished}>Clear finished todos</a>;
+      const todosLeft = this.getTodosLeft();
+      const itemsPlural = todosLeft == 1 ? 'item' : 'items';
+
+      this.footer =
+        <footer className="footer">
+          <span className="todo-count">
+            {todosLeft} {itemsPlural} left
+          </span>
+          <ul className="filters">
+            <li><a className={this.getFilter() == 'All' ? 'selected' : ''} onClick={this.setFilterAll}>All</a></li>
+            <li><a className={this.getFilter() == 'Finished' ? 'selected' : ''} onClick={this.setFilterFinished}>Finished</a></li>
+            <li><a className={this.getFilter() == 'Not Finished' ? 'selected' : ''} onClick={this.setFilterNotFinished}>Not Finished</a></li>
+          </ul>
+
+          {clearTodos}
+        </footer>
+    }
+    return this.footer;
+  }
+
+  flagDirtyFooter(){
+    this.footer = undefined;
+    if(this.footerDirtySubscribers !== undefined){
+      this.footerDirtySubscribers.forEach(callDirtySubscriber);
+    }
+    this.flagDirtyView();
+  }
+
+  private footerDirtySubscribers: Set<DirtySubscriber>;
+
+  subscribeDirtyFooter(dirtySubscriber: DirtySubscriber){
+    if(this.footerDirtySubscribers === undefined){
+      this.footerDirtySubscribers = new Set();
+    }
+    this.footerDirtySubscribers.add(dirtySubscriber);
+  }
+
+  unsubscribeDirtyFooter(dirtySubscriber: DirtySubscriber){
+    if(this.footerDirtySubscribers !== undefined){
+      this.footerDirtySubscribers.delete(dirtySubscriber);
     }
   }
 }
