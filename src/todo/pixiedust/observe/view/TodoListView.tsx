@@ -36,7 +36,7 @@ export class TodoListHeader extends PixieDustComponent<TodoListHeaderProps>{
   }
 
   render(): JSX.Element {
-    console.log('render header', this.props.list.getIdentity());
+    // console.log('render header', this.props.list.getIdentity());
     return this.props.list.getHeader();
   }
 }
@@ -79,7 +79,7 @@ export class TodoListFooter extends PixieDustComponent<TodoListFooterProps>{
   }
 
   render(): JSX.Element {
-    console.log('render footer', this.props.list.getIdentity());
+    // console.log('render footer', this.props.list.getIdentity());
     return this.props.list.getFooter();
   }
 }
@@ -116,7 +116,7 @@ export default class TodoListView extends PixieDustComponent<TodoListViewProps>{
   }
 
   render(){
-    console.log('render list', this.props.list.getIdentity());
+    // console.log('render list', this.props.list.getIdentity());
     return this.props.list.getView();
   }
 }

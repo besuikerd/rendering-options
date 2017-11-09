@@ -4,6 +4,7 @@ var config = {
   entry: {
     main: './src/main',
     test: './src/todo/test/test',
+    single: './src/todo/singletodo',
     styles: './stylesheets/main.scss'
   }
 , devtool: "source-map"

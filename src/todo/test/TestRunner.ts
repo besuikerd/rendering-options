@@ -1,15 +1,8 @@
 import TestOptions from './TestOptions';
 import TestStrategy from "./TestStrategy";
 import {Simulate} from "react-dom/test-utils";
+import {animationFrame} from "./promises";
 
-function animationFrame(): Promise<number>{
-  // return sleep(300).then(e => 0);
-  return new Promise(window.requestAnimationFrame);
-}
-
-function sleep(time: number): Promise<void> {
-  return new Promise(r => setTimeout(r, time))
-}
 
 export async function runTest(root: Element, options: TestOptions){
   const { selector } = options;
@@ -109,7 +102,7 @@ export async function runTest(root: Element, options: TestOptions){
     }
 
     await animationFrame();
-    Simulate.keyPress(element, {
+    Simulate.keyDown(element, {
       key: 'Enter',
       keyCode: 13,
       which: 13
@@ -178,9 +171,9 @@ export async function runTest(root: Element, options: TestOptions){
 
   switch(options.strategy){
     case TestStrategy.TOP_DOWN:
-      await topDown(listElement, 0);
+      await topDown(listElement, 1);
       break;
     case TestStrategy.BOTTOM_UP:
-      await bottomUp(listElement, 0);
+      await bottomUp(listElement, 1);
   }
 }

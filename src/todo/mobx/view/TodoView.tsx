@@ -16,7 +16,7 @@ export default class TodoView extends React.Component<TodoViewProps>{
   };
 
   render(): JSX.Element | any {
-    console.log('render todo', this.props.todo.task);
+    // console.log('render todo', this.props.todo.task);
 
     const {todo, removeTodo} = this.props;
 

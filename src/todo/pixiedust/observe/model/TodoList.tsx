@@ -542,7 +542,7 @@ export default class TodoList{
         <button className="add-child" onClick={this.addChild}>Add child</button>
         <h1>Todos</h1>
         <input className="toggle-all" type="checkbox" checked={this.getAllFinished()} onChange={this.toggleAll}/>
-        <input id="new-todo" type="text" value={this.getInput()} onChange={this.onInput} onKeyPress={this.addTodo}/>
+        <input id="new-todo" type="text" value={this.getInput()} onChange={this.onInput} onKeyDown={this.addTodo}/>
       </header>
     }
     return this.header;

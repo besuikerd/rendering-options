@@ -44,12 +44,12 @@ export class TodoListHeader extends React.Component<TodoListHeaderProps>{
 
   render(): JSX.Element{
     const { list } = this.props;
-    console.log('render header', list.id);
+    // console.log('render header', list.id);
     return <header className="header">
       <button className="add-child" onClick={this.addChild}>Add child</button>
       <h1>Todos</h1>
       <input className="toggle-all" type="checkbox" checked={list.allFinished} onChange={this.toggleAll}/>
-      <input id="new-todo" type="text" value={list.input} onChange={this.onInput} onKeyPress={this.addTodo}/>
+      <input id="new-todo" type="text" value={list.input} onChange={this.onInput} onKeyDown={this.addTodo}/>
     </header>
   }
 }
@@ -79,7 +79,7 @@ export class TodoListFooter extends React.Component<TodoListFooterProps>{
   
   render(): JSX.Element{
     const { list } = this.props;
-    console.log('render footer', list.id);
+    // console.log('render footer', list.id);
     const itemsPlural = list.todosLeft == 1 ? 'item' : 'items';
     const clearTodos = list.finishedTodos.length == 0 ? null : <a className="clear-completed" onClick={this.clearFinished}>Clear finished todos</a>;
     return <footer className="footer">
@@ -121,7 +121,7 @@ export default class TodoListView extends React.Component<TodoListViewProps>{
   };
 
   render(): JSX.Element | any {
-    console.log('render list', this.props.list.id);
+    // console.log('render list', this.props.list.id);
     const {list} = this.props;
 
     const children = list.children.map(child => <TodoListView key={child.id} list={child}/>);
