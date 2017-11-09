@@ -1,6 +1,6 @@
 # Rendering Tests for PixieDust
 
-## Building the projet
+## Building the project
 
 ```bash
 npm install
